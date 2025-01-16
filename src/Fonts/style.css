@@ -1,0 +1,9 @@
+@font-face {
+    font-family: 'FreightDisp Pro';
+    src: local('FreightDisp Pro Semi Bold Regular'), local('FreightDisp-Pro-Semi-Bold-Regular'),
+        url('FreightDispProSemibold-Regular.woff2') format('woff2'),
+        url('FreightDispProSemibold-Regular.woff') format('woff'),
+        url('FreightDispProSemibold-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+  }
