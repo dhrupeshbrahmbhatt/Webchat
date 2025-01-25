@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import MessageBox from "../Components/MessageTemplate";
@@ -120,8 +120,6 @@ export const Message = ({ selectedContact, onClose }) => {
   const [post, setPost] = useState([]);
   const [userAddress, setUserAddress] = useState("");
   const [newMessage, setNewMessage] = useState('');
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const chatContainerRef = useRef(null);
@@ -155,114 +153,107 @@ export const Message = ({ selectedContact, onClose }) => {
     check_Auth();
   });
 
-  let prevScrollHeight = 0;
-
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback((behavior = 'auto') => {
     if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      const scrollHeight = chatContainerRef.current.scrollHeight;
+      chatContainerRef.current.scrollTo({
+        top: scrollHeight,
+        behavior: behavior
+      });
     }
-  };
+  }, []);
 
-  const fetchMessages = async (pageNum) => {
+  useEffect(() => {
+    const initializeScroll = () => {
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      }
+    };
+
+    initializeScroll();
+    setTimeout(initializeScroll, 100);
+  }, []);
+
+  const fetchMessages = async () => {
     if (loading) return;
     setLoading(true);
 
     try {
+      console.log("Fetching messages");
       const response = await axios.get(`http://localhost:3000/posts`, {
         headers: {
           Authorization: "Bearer " + token.split('=')[1],
           'Content-Type': 'application/json',
-        },
+        }
       });
 
-      if (response.data) {
-        // Process encrypted messages
-        const decryptedMessages = response.data
-          .filter(msg => msg.content?.body && msg.content?.isEncrypted)
-          .map(msg => {
-            try {
-              const key = CryptoJS.SHA256(symmetricKey).toString();
-              const bytes = CryptoJS.AES.decrypt(msg.content.body, key);
-              const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+      console.log("Raw response:", response.data);
 
-              return {
-                ...msg,
-                content: {
-                  body: decrypted || msg.content.body,
-                  isEncrypted: !decrypted
-                }
-              };
-            } catch (error) {
-              console.error('Failed to decrypt message:', error);
-              return msg;
+      // Ensure response.data is an array
+      const messages = Array.isArray(response.data) ? response.data : [];
+
+      // Process messages with error handling
+      const processedMessages = messages
+        .filter(msg => msg && msg.content)
+        .map(msg => {
+          try {
+            if (msg.content?.isEncrypted && symmetricKey) {
+              try {
+                const key = CryptoJS.SHA256(symmetricKey).toString();
+                const bytes = CryptoJS.AES.decrypt(msg.content.body, key);
+                const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+
+                return {
+                  ...msg,
+                  content: {
+                    body: decrypted || msg.content.body,
+                    isEncrypted: !decrypted
+                  }
+                };
+              } catch (decryptError) {
+                console.warn('Failed to decrypt message:', decryptError);
+                return msg;
+              }
             }
-          });
-
-        // Add unencrypted messages
-        const unencryptedMessages = response.data
-          .filter(msg => msg.content?.body && !msg.content?.isEncrypted)
-          .map(msg => ({
-            ...msg,
-            content: {
-              body: msg.content.body,
-              isEncrypted: false
-            }
-          }));
-
-        // Combine messages, remove duplicates, and reverse the order
-        const allMessages = [...decryptedMessages, ...unencryptedMessages];
-        const uniqueMessages = allMessages.reduce((acc, current) => {
-          const isDuplicate = acc.find(item => 
-            item.time === current.time && 
-            item.content.body === current.content.body
-          );
-          if (!isDuplicate) {
-            acc.push(current);
+            
+            return {
+              ...msg,
+              content: {
+                body: msg.content.body || '',
+                isEncrypted: false
+              }
+            };
+          } catch (error) {
+            console.error('Error processing message:', error);
+            return null;
           }
-          return acc;
-        }, []).reverse();
+        })
+        .filter(Boolean);
 
-        setPost(prevPosts => {
-          const combinedPosts = [...prevPosts, ...uniqueMessages];
-          const finalPosts = combinedPosts.reduce((acc, current) => {
-            const isDuplicate = acc.find(item => 
-              item.time === current.time && 
-              item.content.body === current.content.body
-            );
-            if (!isDuplicate) {
-              acc.push(current);
-            }
-            return acc;
-          }, []);
+      // Set posts and scroll to bottom
+      setPost(prevPosts => {
+        const newPosts = processedMessages.sort((a, b) => a.time - b.time);
+        if (newPosts.length !== prevPosts.length) {
+          setTimeout(() => scrollToBottom('auto'), 0);
+        }
+        return newPosts;
+      });
 
-          // Scroll to bottom after setting posts
-          setTimeout(scrollToBottom, 100);
-          return finalPosts;
-        });
-      }
     } catch (error) {
       console.error('Error fetching messages:', error);
+      console.error('Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleScroll = () => {
-    if (chatContainerRef.current.scrollTop === 0 && hasMore && !loading) {
-      setPage((prevPage) => prevPage + 1);
-    }
-  };
-
   useEffect(() => {
-    fetchMessages(page);
-
-    const chatContainer = chatContainerRef.current;
-    chatContainer.addEventListener('scroll', handleScroll);
-
-    return () => {
-      chatContainer.removeEventListener('scroll', handleScroll);
-    };
-  }, [page]);
+    fetchMessages();
+  }, []); // Only fetch once on mount
 
   const sendMessage = async (e) => {
     e.preventDefault();
@@ -287,7 +278,7 @@ export const Message = ({ selectedContact, onClose }) => {
           }, 
           sender: userAddress,
           time: Math.floor(Date.now() / 1000),
-          animation: true // Add animation flag
+          animation: true
         }
       ]);
 
@@ -306,9 +297,7 @@ export const Message = ({ selectedContact, onClose }) => {
       });
 
       setNewMessage('');
-      
-      // Scroll to bottom after sending
-      setTimeout(scrollToBottom, 100);
+      scrollToBottom();
     } catch (err) {
       console.error("Error sending message:", err);
     }
@@ -342,12 +331,6 @@ export const Message = ({ selectedContact, onClose }) => {
       textarea.style.height = `${textarea.scrollHeight}px`;
     }
   }, [newMessage]);   
-
-  useEffect(() => {
-    if (post.length > 0) {
-      scrollToBottom();
-    }
-  }, []);
 
   useEffect(() => {
     if (newMessage === '') {
@@ -589,13 +572,18 @@ export const Message = ({ selectedContact, onClose }) => {
       <div
         ref={chatContainerRef}
         className="flex-grow overflow-y-auto scrollbar-thin scrollbar-thumb-purple-500/30 scrollbar-track-white/5 hover:scrollbar-thumb-purple-500/50 transition-colors duration-300"
-        style={{ height: 'calc(100vh - 120px)' }}
+        style={{ 
+          height: 'calc(100vh - 120px)',
+          scrollBehavior: 'smooth',
+          display: 'flex',
+          flexDirection: 'column-reverse'
+        }}
       >
-        {loading && page === 1 && (
+        {loading && (
           <div className="text-center py-4 text-gray-400">Loading...</div>
         )}
         {post.length > 0 && (
-          <div className="px-6 py-4">
+          <div className="px-6 py-4 flex flex-col">
             {memoizedMessages}
           </div>
         )}
