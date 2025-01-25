@@ -40,6 +40,7 @@ export const Signup = () => {
       });
 
       if (response.data) {
+        sessionStorage.setItem('symmetricKey', response.data.symmetric_key);
         toast.success("Account created successfully!");
         navigate('/signin');
       }

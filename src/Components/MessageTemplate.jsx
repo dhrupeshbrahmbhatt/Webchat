@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 
 const MessageBox = ({ isMyMessage, Message, Address, timestamp }) => {
   const formatTime = (unixTimestamp) => {
@@ -17,7 +18,12 @@ const MessageBox = ({ isMyMessage, Message, Address, timestamp }) => {
     Message?.toString() || '';
 
   return (
-    <div className={`flex ${isMyMessage ? "justify-end" : "justify-start"} mb-3`}>
+    <motion.div
+      className={`flex ${isMyMessage ? "justify-end" : "justify-start"} mb-3`}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
       <div
         className={`relative px-4 py-3 max-w-[65%] rounded-xl ${
           isMyMessage
@@ -40,7 +46,7 @@ const MessageBox = ({ isMyMessage, Message, Address, timestamp }) => {
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

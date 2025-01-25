@@ -156,7 +156,7 @@ app.post("/signup", async (req, res) => {
       // Create a JWT token after successful signin
       const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
   
-      res.status(200).json({ token, user, symmetric_key: user.symmetric_key });
+      res.status(200).json({ token, symmetric_key: user.symmetric_key });
     } catch (err) {
       console.error("Sign In Error:", err);
       res.status(500).send("Internal Server Error");

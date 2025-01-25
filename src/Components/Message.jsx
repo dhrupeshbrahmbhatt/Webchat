@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import MessageBox from "../components/MessageTemplate";
+import MessageBox from "../Components/MessageTemplate";
 import CryptoJS from 'crypto-js';
+import { motion } from 'framer-motion';
+import { IoClose } from 'react-icons/io5';
 
 export const encryptMessage = (message, symmetricKey) => {
   try {
@@ -87,7 +89,7 @@ const DateSeparator = ({ date }) => {
   );
 };
 
-export const Message = () => {
+export const Message = ({ selectedContact, onClose }) => {
   const [post, setPost] = useState([]);
   const [userAddress, setUserAddress] = useState("");
   const [newMessage, setNewMessage] = useState('');
@@ -98,6 +100,7 @@ export const Message = () => {
   const chatContainerRef = useRef(null);
   const token = document.cookie;
   const symmetricKey = sessionStorage.getItem('symmetric_key');
+  const [isTyping, setIsTyping] = useState(false);
 
   const check_Auth = async () => {
     try {
@@ -242,15 +245,19 @@ export const Message = () => {
       const encryptedData = encryptMessage(newMessage, symmetricKey);
       console.log("Encryption result:", encryptedData);
 
-      // Add message to local state at the end of the array
-      setPost((prevPost) => [...prevPost, { 
-        content: { 
-          body: newMessage,
-          isEncrypted: false
-        }, 
-        sender: userAddress,
-        time: Math.floor(Date.now() / 1000)
-      }]);
+      // Add message to local state at the end of the array with animation
+      setPost((prevPost) => [
+        ...prevPost, 
+        { 
+          content: { 
+            body: newMessage,
+            isEncrypted: false
+          }, 
+          sender: userAddress,
+          time: Math.floor(Date.now() / 1000),
+          animation: true // Add animation flag
+        }
+      ]);
 
       // Send encrypted message to server
       await axios.post('http://localhost:3000/message', {
@@ -293,6 +300,7 @@ export const Message = () => {
         sendMessage(e);
       }
     }
+    setIsTyping(true);
   };
 
   useEffect(() => {
@@ -309,15 +317,28 @@ export const Message = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (newMessage === '') {
+      setIsTyping(false);
+    }
+  }, [newMessage]);
+
   return (
     <div className="h-screen flex flex-col bg-transparent">
-      <header className="bg-white/5 backdrop-blur-sm px-6 py-4 flex items-center border-b border-white/10">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center">
-          <span className="font-['Freight_Disp_Pro'] text-white text-lg">A</span>
+      <header className="bg-white/5 backdrop-blur-sm px-6 py-4 flex items-center justify-between border-b border-white/10">
+        <div className="flex items-center">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center">
+            <span className="font-['Freight_Disp_Pro'] text-white text-lg">
+              {selectedContact?.avatar || 'A'}
+            </span>
+          </div>
+          <h1 className="ml-4 font-['Freight_Disp_Pro'] text-2xl bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+            {selectedContact?.name || 'Aleph Test Group Chat'}
+          </h1>
         </div>
-        <h1 className="ml-4 font-['Freight_Disp_Pro'] text-2xl bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-          Aleph Test Group Chat
-        </h1>
+        <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors duration-300">
+          <IoClose size={24} />
+        </button>
       </header>
 
       <div
@@ -353,19 +374,35 @@ export const Message = () => {
 
                 const isMyMessage = item.sender === userAddress;
                 acc.push(
-                  <MessageBox
-                    isMyMessage={isMyMessage}
+                  <motion.div
                     key={`msg-${item.time}-${index}`}
-                    Message={item.content.body}
-                    Address={item.sender}
-                    isEncrypted={item.content.isEncrypted}
-                    timestamp={item.time}
-                  />
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                  >
+                    <MessageBox
+                      isMyMessage={isMyMessage}
+                      Message={item.content.body}
+                      Address={item.sender}
+                      isEncrypted={item.content.isEncrypted}
+                      timestamp={item.time}
+                    />
+                  </motion.div>
                 );
 
                 return acc;
               }, [])}
           </div>
+        )}
+        {isTyping && (
+          <motion.div
+            className="text-gray-400 text-sm px-6 py-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
+          >
+            Typing...
+          </motion.div>
         )}
       </div>
 

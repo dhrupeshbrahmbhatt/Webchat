@@ -13,10 +13,40 @@ export const Signin = () => {
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    // Check for existing auth token when component mounts
+    const checkAuthStatus = async () => {
+      const cookies = document.cookie.split(';');
+      const authCookie = cookies.find(cookie => cookie.trim().startsWith('Auth='));
+      
+      if (authCookie) {
+        const token = authCookie.split('=')[1];
+        try {
+          const response = await axios.get('http://localhost:3000/profile', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+
+          if (response.data.user) {
+            // User is already authenticated, redirect to dashboard
+            sessionStorage.setItem('user', JSON.stringify(response.data.user));
+            sessionStorage.setItem('symmetric_key', response.data.user.symmetric_key);
+            navigate('/dashboard');
+          }
+        } catch (error) {
+          // If token is invalid, clear the cookie
+          document.cookie = "Auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+          console.log("Invalid or expired token");
+        }
+      }
+    };
+
+    checkAuthStatus();
     AOS.init({ duration: 800 });
-  }, []);
+  }, [navigate]);
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
@@ -36,12 +66,11 @@ export const Signin = () => {
       });
 
       if (response.data) {
-        const { token, user } = response.data;
-        sessionStorage.setItem('user', JSON.stringify(user));
+        const { token, symmetric_key } = response.data;
         document.cookie = `Auth=${token}; path=/; secure; samesite=strict;`;
-        sessionStorage.setItem('symmetric_key', response.data.symmetric_key);
+        sessionStorage.setItem('symmetric_key', symmetric_key);
         toast.success("Login Successful!");
-        window.location.href = "/dashboard";
+        navigate('/dashboard');
       }
     } catch (error) {
       console.error("Error during sign-in:", error);
