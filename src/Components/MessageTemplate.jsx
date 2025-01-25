@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 
 const MessageBox = ({ isMyMessage, Message, Address, timestamp }) => {
   const formatTime = (unixTimestamp) => {
-    // Convert Unix timestamp to milliseconds
     const date = new Date(unixTimestamp * 1000);
     return date.toLocaleTimeString('en-US', {
       hour: 'numeric',
@@ -11,11 +10,6 @@ const MessageBox = ({ isMyMessage, Message, Address, timestamp }) => {
       hour12: true
     });
   };
-
-  // Add message content handling
-  const messageContent = typeof Message === 'object' ? 
-    Message?.body || JSON.stringify(Message) : 
-    Message?.toString() || '';
 
   return (
     <motion.div
@@ -32,7 +26,7 @@ const MessageBox = ({ isMyMessage, Message, Address, timestamp }) => {
         } border border-white/10`}
       >
         <pre className="font-['Graphik'] whitespace-pre-wrap break-words text-[15px] leading-relaxed">
-          {messageContent}
+          {Message}
         </pre>
         
         <div className="flex items-center justify-end space-x-2 mt-1">

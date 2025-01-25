@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import MessageBox from "../Components/MessageTemplate";
 import CryptoJS from 'crypto-js';
 import { motion } from 'framer-motion';
-import { IoClose } from 'react-icons/io5';
+import { IoEllipsisHorizontal, IoCall, IoVideocam, IoClose } from 'react-icons/io5';
+import { IoSearchOutline } from 'react-icons/io5';
 
 export const encryptMessage = (message, symmetricKey) => {
   try {
@@ -89,6 +90,32 @@ const DateSeparator = ({ date }) => {
   );
 };
 
+const escapeRegExp = (string) => {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
+const highlightText = (text, searchTerm) => {
+  if (!searchTerm || !text) return text;
+  
+  const regex = new RegExp(`(${escapeRegExp(searchTerm)})`, 'gi');
+  const parts = text.split(regex);
+  
+  return parts.map((part, index) => {
+    if (part.toLowerCase() === searchTerm.toLowerCase()) {
+      return (
+        <mark
+          key={index}
+          className="bg-amber-400 text-gray-900 px-0.5 rounded"
+          data-highlight="true"
+        >
+          {part}
+        </mark>
+      );
+    }
+    return part;
+  });
+};
+
 export const Message = ({ selectedContact, onClose }) => {
   const [post, setPost] = useState([]);
   const [userAddress, setUserAddress] = useState("");
@@ -101,6 +128,11 @@ export const Message = ({ selectedContact, onClose }) => {
   const token = document.cookie;
   const symmetricKey = sessionStorage.getItem('symmetric_key');
   const [isTyping, setIsTyping] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isSearchActive, setIsSearchActive] = useState(false);
+  const [searchMatches, setSearchMatches] = useState([]);
+  const [currentSearchIndex, setCurrentSearchIndex] = useState(-1);
+  const searchTimeoutRef = useRef(null);
 
   const check_Auth = async () => {
     try {
@@ -323,6 +355,151 @@ export const Message = ({ selectedContact, onClose }) => {
     }
   }, [newMessage]);
 
+  const handleSearch = (e) => {
+    const searchValue = e.target.value;
+    setSearchTerm(searchValue);
+    
+    // Clear previous timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    
+    if (searchValue.trim()) {
+      // Debounce search to improve performance
+      searchTimeoutRef.current = setTimeout(() => {
+        const matches = [];
+        const messages = chatContainerRef.current.querySelectorAll('[data-highlight="true"]');
+        
+        messages.forEach((element) => {
+          const rect = element.getBoundingClientRect();
+          const containerRect = chatContainerRef.current.getBoundingClientRect();
+          
+          matches.push({
+            element,
+            position: rect.top - containerRect.top + chatContainerRef.current.scrollTop
+          });
+        });
+        
+        setSearchMatches(matches);
+        setCurrentSearchIndex(matches.length > 0 ? 0 : -1);
+        
+        // Scroll to first match
+        if (matches.length > 0) {
+          chatContainerRef.current.scrollTo({
+            top: matches[0].position - containerRect.height / 2,
+            behavior: 'smooth'
+          });
+        }
+      }, 150); // Debounce delay
+    } else {
+      setSearchMatches([]);
+      setCurrentSearchIndex(-1);
+    }
+  };
+
+  const handleSearchNavigation = (direction) => {
+    if (searchMatches.length === 0) return;
+    
+    let newIndex;
+    if (direction === 'up') {
+      newIndex = currentSearchIndex <= 0 ? searchMatches.length - 1 : currentSearchIndex - 1;
+    } else {
+      newIndex = currentSearchIndex >= searchMatches.length - 1 ? 0 : currentSearchIndex + 1;
+    }
+    
+    setCurrentSearchIndex(newIndex);
+    
+    const match = searchMatches[newIndex];
+    if (match) {
+      const containerRect = chatContainerRef.current.getBoundingClientRect();
+      chatContainerRef.current.scrollTo({
+        top: match.position - containerRect.height / 2,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const toggleSearch = () => {
+    setIsSearchActive(!isSearchActive);
+    setSearchTerm('');
+    setSearchMatches([]);
+    setCurrentSearchIndex(-1);
+  };
+
+  // Update the message rendering to use react-highlight-words
+  const renderMessage = (item, index) => {
+    const isMyMessage = item.sender === userAddress;
+    
+    return (
+      <motion.div
+        key={`msg-${item.time}-${index}`}
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+      >
+        <MessageBox
+          isMyMessage={isMyMessage}
+          Message={highlightText(item.content.body, searchTerm)}
+          Address={item.sender}
+          isEncrypted={item.content.isEncrypted}
+          timestamp={item.time}
+        />
+      </motion.div>
+    );
+  };
+
+  // Performance optimization: Memoize messages
+  const memoizedMessages = useMemo(() => {
+    return post
+      .filter((item) => item.content?.body?.trim() !== "")
+      .reduce((acc, item, index, array) => {
+        const messageDate = new Date(item.time * 1000);
+        const prevMessageDate = index > 0 
+          ? new Date(array[index - 1]?.time * 1000) 
+          : null;
+
+        if (
+          index === 0 || 
+          !prevMessageDate || 
+          messageDate.toDateString() !== prevMessageDate.toDateString()
+        ) {
+          acc.push(
+            <DateSeparator
+              key={`date-${item.time}-${index}`}
+              date={item.time}
+            />
+          );
+        }
+
+        acc.push(renderMessage(item, index));
+        return acc;
+      }, []);
+  }, [post, searchTerm, userAddress]);
+
+  // Add keyboard shortcut listener for Ctrl+F
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault();
+        toggleSearch();
+      } else if (e.key === 'Escape' && isSearchActive) {
+        toggleSearch();
+      } else if (isSearchActive && searchMatches.length > 0) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (e.shiftKey) {
+            handleSearchNavigation('up');
+          } else {
+            handleSearchNavigation('down');
+          }
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [isSearchActive, searchMatches.length]);
+
   return (
     <div className="h-screen flex flex-col bg-transparent">
       <header className="bg-white/5 backdrop-blur-sm px-6 py-4 flex items-center justify-between border-b border-white/10">
@@ -336,10 +513,78 @@ export const Message = ({ selectedContact, onClose }) => {
             {selectedContact?.name || 'Aleph Test Group Chat'}
           </h1>
         </div>
-        <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors duration-300">
-          <IoClose size={24} />
-        </button>
+        <div className="flex items-center space-x-4">
+          <button onClick={toggleSearch} className="text-gray-400 hover:text-white transition-colors duration-300">
+            <IoSearchOutline size={24} />
+          </button>
+          <button className="text-gray-400 hover:text-white transition-colors duration-300">
+            <IoCall size={24} />
+          </button>
+          <button className="text-gray-400 hover:text-white transition-colors duration-300">
+            <IoVideocam size={24} />
+          </button>
+          <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors duration-300">
+            <IoEllipsisHorizontal size={24} />
+          </button>
+        </div>
       </header>
+
+      {isSearchActive && (
+        <div className="bg-white/5 backdrop-blur-sm px-6 py-2 border-b border-white/10">
+          <div className="relative flex items-center">
+            <div className="absolute left-3 text-gray-400">
+              <IoSearchOutline size={20} />
+            </div>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={handleSearch}
+              placeholder="Search in chat..."
+              className="w-full pl-10 pr-32 py-2 rounded-lg bg-black/20 text-white placeholder-gray-400 
+                       focus:outline-none focus:ring-1 focus:ring-purple-500/50 
+                       border border-white/10 transition-all duration-300"
+              autoFocus
+            />
+            <div className="absolute right-2 flex items-center space-x-2 bg-black/20 rounded-md px-2 py-1">
+              {searchTerm && searchMatches.length > 0 && (
+                <>
+                  <span className="text-sm text-gray-400 px-2 border-r border-gray-600">
+                    {`${currentSearchIndex + 1}/${searchMatches.length}`}
+                  </span>
+                </>
+              )}
+              <button
+                onClick={() => handleSearchNavigation('up')}
+                className="p-1 text-gray-400 hover:text-white disabled:opacity-50 hover:bg-white/5 rounded"
+                disabled={!searchTerm || searchMatches.length === 0}
+                title="Previous match"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                </svg>
+              </button>
+              <button
+                onClick={() => handleSearchNavigation('down')}
+                className="p-1 text-gray-400 hover:text-white disabled:opacity-50 hover:bg-white/5 rounded"
+                disabled={!searchTerm || searchMatches.length === 0}
+                title="Next match"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <div className="h-4 w-[1px] bg-gray-600" />
+              <button
+                onClick={toggleSearch}
+                className="p-1 text-gray-400 hover:text-white hover:bg-white/5 rounded transition-colors duration-300"
+                title="Close search (Esc)"
+              >
+                <IoClose size={16} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div
         ref={chatContainerRef}
@@ -351,47 +596,7 @@ export const Message = ({ selectedContact, onClose }) => {
         )}
         {post.length > 0 && (
           <div className="px-6 py-4">
-            {post
-              .filter((item) => item.content?.body?.trim() !== "")
-              .reduce((acc, item, index, array) => {
-                const messageDate = new Date(item.time * 1000);
-                const prevMessageDate = index > 0 
-                  ? new Date(array[index - 1]?.time * 1000) 
-                  : null;
-
-                if (
-                  index === 0 || 
-                  !prevMessageDate || 
-                  messageDate.toDateString() !== prevMessageDate.toDateString()
-                ) {
-                  acc.push(
-                    <DateSeparator
-                      key={`date-${item.time}-${index}`}
-                      date={item.time}
-                    />
-                  );
-                }
-
-                const isMyMessage = item.sender === userAddress;
-                acc.push(
-                  <motion.div
-                    key={`msg-${item.time}-${index}`}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5, ease: "easeOut" }}
-                  >
-                    <MessageBox
-                      isMyMessage={isMyMessage}
-                      Message={item.content.body}
-                      Address={item.sender}
-                      isEncrypted={item.content.isEncrypted}
-                      timestamp={item.time}
-                    />
-                  </motion.div>
-                );
-
-                return acc;
-              }, [])}
+            {memoizedMessages}
           </div>
         )}
         {isTyping && (
