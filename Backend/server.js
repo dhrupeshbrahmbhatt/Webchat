@@ -1,3 +1,11 @@
+process.removeAllListeners('warning');
+process.on('warning', (warning) => {
+  if (warning.name === 'DeprecationWarning' && warning.message.includes('punycode')) {
+    return;
+  }
+  console.warn(warning.name, warning.message);
+});
+
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose'); 
