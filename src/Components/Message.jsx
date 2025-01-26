@@ -6,6 +6,7 @@ import CryptoJS from 'crypto-js';
 import { motion } from 'framer-motion';
 import { IoEllipsisHorizontal, IoCall, IoVideocam, IoClose } from 'react-icons/io5';
 import { IoSearchOutline } from 'react-icons/io5';
+import { toast } from 'react-hot-toast';
 
 export const encryptMessage = (message, symmetricKey) => {
   try {
@@ -483,6 +484,21 @@ export const Message = ({ selectedContact, onClose }) => {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [isSearchActive, searchMatches.length]);
 
+  const handleClose = () => {
+    toast.success('Chat closed successfully', {
+      duration: 1000,
+      position: 'top-center',
+      style: {
+        background: 'rgba(255, 255, 255, 0.1)',
+        backdropFilter: 'blur(8px)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        color: '#fff',
+        borderRadius: '12px',
+      },
+    });
+    onClose();
+  };
+
   return (
     <div className="h-screen flex flex-col bg-transparent">
       <header className="bg-white/5 backdrop-blur-sm px-6 py-4 flex items-center justify-between border-b border-white/10">
@@ -506,7 +522,7 @@ export const Message = ({ selectedContact, onClose }) => {
           <button className="text-gray-400 hover:text-white transition-colors duration-300">
             <IoVideocam size={24} />
           </button>
-          <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors duration-300">
+          <button onClick={handleClose} className="text-gray-400 hover:text-white transition-colors duration-300">
             <IoEllipsisHorizontal size={24} />
           </button>
         </div>
