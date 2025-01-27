@@ -76,7 +76,7 @@
 # Advanced Aleph.im Chat Demo Results
 
 ## Demo Session Information
-**Date:** [Current Date]
+**Date:** 26-01-2025
 **Session Type:** Advanced P2P Communication Test
 **Channel ID:** advanced-demo-1737878322124
 
