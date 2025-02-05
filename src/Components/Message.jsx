@@ -4,9 +4,9 @@ import axios from 'axios';
 import MessageBox from "../Components/MessageTemplate";
 import CryptoJS from 'crypto-js';
 import { motion } from 'framer-motion';
-import { IoEllipsisHorizontal, IoCall, IoVideocam, IoClose } from 'react-icons/io5';
-import { IoSearchOutline } from 'react-icons/io5';
+import { IoEllipsisHorizontal, IoCall, IoVideocam, IoClose, IoSearchOutline, IoSettingsOutline } from 'react-icons/io5';
 import { toast } from 'react-hot-toast';
+import { RxAvatar } from 'react-icons/rx';
 
 export const encryptMessage = (message, symmetricKey) => {
   try {
@@ -501,7 +501,7 @@ export const Message = ({ selectedContact, onClose }) => {
 
   return (
     <div className="h-screen flex flex-col bg-transparent">
-      <header className="bg-white/5 backdrop-blur-sm px-6 py-4 flex items-center justify-between border-b border-white/10">
+      <header className="bg-slate-900/90 px-6 py-4 flex items-center justify-between border-b border-white/10">
         <div className="flex items-center">
           <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center">
             <span className="font-['Freight_Disp_Pro'] text-white text-lg">
@@ -513,7 +513,7 @@ export const Message = ({ selectedContact, onClose }) => {
           </h1>
         </div>
         <div className="flex items-center space-x-4">
-          <button onClick={toggleSearch} className="text-gray-400 hover:text-white transition-colors duration-300">
+          <button onClick={toggleSearch} className="text-gray-400 hover:text-purple-400 transition-colors duration-300">
             <IoSearchOutline size={24} />
           </button>
           <button className="text-gray-400 hover:text-white transition-colors duration-300">

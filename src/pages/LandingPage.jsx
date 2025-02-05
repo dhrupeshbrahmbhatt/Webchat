@@ -200,4 +200,3 @@ const Testimonial = ({ name, role, quote, image }) => (
     </div>
   </div>
 );
-
