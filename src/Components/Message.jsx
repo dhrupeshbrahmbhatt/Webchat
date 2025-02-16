@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { IoEllipsisHorizontal, IoCall, IoVideocam, IoClose, IoSearchOutline, IoSettingsOutline } from 'react-icons/io5';
 import { toast } from 'react-hot-toast';
 import { RxAvatar } from 'react-icons/rx';
+import { Toaster } from 'react-hot-toast';
 
 export const encryptMessage = (message, symmetricKey) => {
   try {
@@ -492,7 +493,7 @@ export const Message = ({ selectedContact, onClose }) => {
         background: 'rgba(255, 255, 255, 0.1)',
         backdropFilter: 'blur(8px)',
         border: '1px solid rgba(255, 255, 255, 0.1)',
-        color: '#fff',
+        color: '#000',
         borderRadius: '12px',
       },
     });
@@ -500,48 +501,65 @@ export const Message = ({ selectedContact, onClose }) => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-transparent">
-      <header className="bg-slate-900/90 px-6 py-4 flex items-center justify-between border-b border-white/10">
-        <div className="flex items-center">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center">
-            <span className="font-['Freight_Disp_Pro'] text-white text-lg">
+    <div className="h-screen flex flex-col bg-[#F5F5F7]">
+      <Toaster 
+        position="top-center" 
+        reverseOrder={false}
+        containerStyle={{
+          top: 40,
+          zIndex: 9999,
+        }}
+        toastOptions={{
+          // Default options for all toasts
+          className: 'font-["SF Pro Display"]',
+          duration: 2000,
+        }}
+      />
+      <header className="h-16 px-6 bg-white/95 backdrop-blur-xl border-b border-[#E5E5E5] 
+        flex items-center justify-between shadow-sm">
+        <div className="flex items-center space-x-4">
+          <div className="w-10 h-10 rounded-full bg-[#E5E5E5] flex items-center justify-center
+            transition-transform duration-300 hover:scale-105">
+            <span className="font-['SF Pro Display'] text-black text-sm font-medium">
               {selectedContact?.avatar || 'A'}
             </span>
           </div>
-          <h1 className="ml-4 font-['Freight_Disp_Pro'] text-2xl bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-            {selectedContact?.name || 'Aleph Test Group Chat'}
+          <h1 className="font-['SF Pro Display'] text-xl font-semibold text-black">
+            {selectedContact?.name || 'Group Chat'}
           </h1>
         </div>
-        <div className="flex items-center space-x-4">
-          <button onClick={toggleSearch} className="text-gray-400 hover:text-purple-400 transition-colors duration-300">
-            <IoSearchOutline size={24} />
+        <div className="flex items-center space-x-6">
+          <button onClick={toggleSearch} 
+            className="text-gray-500 hover:text-black transition-colors duration-300">
+            <IoSearchOutline size={22} />
           </button>
-          <button className="text-gray-400 hover:text-white transition-colors duration-300">
-            <IoCall size={24} />
+          <button className="text-gray-500 hover:text-black transition-colors duration-300">
+            <IoCall size={22} />
           </button>
-          <button className="text-gray-400 hover:text-white transition-colors duration-300">
-            <IoVideocam size={24} />
+          <button className="text-gray-500 hover:text-black transition-colors duration-300">
+            <IoVideocam size={22} />
           </button>
-          <button onClick={handleClose} className="text-gray-400 hover:text-white transition-colors duration-300">
-            <IoEllipsisHorizontal size={24} />
+          <button onClick={handleClose} 
+            className="text-gray-500 hover:text-black transition-colors duration-300">
+            <IoClose size={22} />
           </button>
         </div>
       </header>
 
       {isSearchActive && (
-        <div className="bg-white/5 backdrop-blur-sm px-6 py-2 border-b border-white/10">
+        <div className="bg-white border-b border-[#E5E5E5] px-6 py-2">
           <div className="relative flex items-center">
-            <div className="absolute left-3 text-gray-400">
-              <IoSearchOutline size={20} />
-            </div>
+            <IoSearchOutline className="absolute left-3 text-gray-400" size={20} />
             <input
               type="text"
               value={searchTerm}
               onChange={handleSearch}
-              placeholder="Search in chat..."
-              className="w-full pl-10 pr-32 py-2 rounded-lg bg-black/20 text-white placeholder-gray-400 
-                       focus:outline-none focus:ring-1 focus:ring-purple-500/50 
-                       border border-white/10 transition-all duration-300"
+              placeholder="Search in conversation"
+              className="w-full pl-10 pr-32 py-2 rounded-xl bg-[#F5F5F7] 
+                text-black placeholder-gray-400 
+                focus:outline-none focus:ring-2 focus:ring-black/5 
+                transition-all duration-300
+                font-['SF Pro Display'] text-sm"
               autoFocus
             />
             <div className="absolute right-2 flex items-center space-x-2 bg-black/20 rounded-md px-2 py-1">
@@ -587,7 +605,9 @@ export const Message = ({ selectedContact, onClose }) => {
 
       <div
         ref={chatContainerRef}
-        className="flex-grow overflow-y-auto scrollbar-thin scrollbar-thumb-purple-500/30 scrollbar-track-white/5 hover:scrollbar-thumb-purple-500/50 transition-colors duration-300"
+        className="flex-grow overflow-y-auto scrollbar-thin scrollbar-thumb-black/20 
+          scrollbar-track-transparent hover:scrollbar-thumb-black/30 
+          transition-colors duration-300 bg-white"
         style={{ 
           height: 'calc(100vh - 120px)',
           scrollBehavior: 'smooth',
@@ -615,14 +635,17 @@ export const Message = ({ selectedContact, onClose }) => {
         )}
       </div>
 
-      <footer className="bg-white/5 backdrop-blur-sm px-6 py-4 border-t border-white/10">
+      <footer className="bg-white border-t border-[#E5E5E5] px-6 py-4">
         <div className="flex items-center gap-4">
           <textarea
-            placeholder="Type a message..."
-            className="flex-grow p-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-400 
-                     focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 resize-none
-                     scrollbar-thin scrollbar-thumb-purple-500/30 scrollbar-track-white/5 
-                     hover:scrollbar-thumb-purple-500/50"
+            placeholder="Message"
+            className="flex-grow px-4 py-3 rounded-xl bg-[#F5F5F7] 
+              text-black placeholder-gray-400 
+              focus:outline-none focus:ring-2 focus:ring-black/5 
+              transition-all duration-300 resize-none
+              font-['SF Pro Display'] text-sm
+              scrollbar-thin scrollbar-thumb-black/20 
+              scrollbar-track-transparent"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={handleKeyPress}
@@ -634,8 +657,9 @@ export const Message = ({ selectedContact, onClose }) => {
           />
           <button
             onClick={sendMessage}
-            className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-xl 
-                     hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-300 font-['Graphik']"
+            className="bg-black text-white px-6 py-3 rounded-xl 
+              hover:bg-black/90 transition-all duration-300 
+              font-['SF Pro Display'] text-sm font-medium"
           >
             Send
           </button>

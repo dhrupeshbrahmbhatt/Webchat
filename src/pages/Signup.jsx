@@ -54,43 +54,43 @@ export const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center">
+    <div className="min-h-screen bg-white flex items-center justify-center">
       <div className="container mx-auto px-4 flex flex-col lg:flex-row items-center lg:justify-between">
         {/* Welcome Section */}
         <div
           className="text-center lg:text-left lg:w-1/2 mb-8 lg:mb-0 px-8"
           data-aos="fade-right"
         >
-          <h1 className="font-['Freight_Disp_Pro'] text-5xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-            Welcome to <span className="text-white">WebChat!</span>
+          <h1 className="font-['SF Pro Display'] text-5xl font-bold text-black">
+            Welcome to <span className="text-black">WebChat</span>
           </h1>
-          <p className="font-['Graphik'] text-gray-300 mt-6 text-lg leading-relaxed">
-            Join our secure blockchain-powered platform for private and rewarding conversations.
+          <p className="font-['SF Pro Display'] text-gray-600 mt-6 text-lg leading-relaxed">
+            Join our secure platform for private and rewarding conversations. Experience the future of communication.
           </p>
         </div>
 
         {/* Form Section */}
         <div
-          className="bg-white/5 backdrop-blur-sm p-8 rounded-xl border border-white/10 w-full max-w-md lg:w-1/2 mx-4"
+          className="bg-gray-50 p-8 rounded-2xl shadow-sm w-full max-w-md lg:w-1/2 mx-4"
           data-aos="fade-left"
         >
           <div className="flex justify-center items-center">
-            <FaUserAlt className="text-purple-400 text-4xl mb-6" />
+            <FaUserAlt className="text-black text-4xl mb-6" />
           </div>
-          <h2 className="font-['Freight_Disp_Pro'] text-3xl font-bold text-center bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-8">
+          <h2 className="font-['SF Pro Display'] text-3xl font-bold text-center text-black mb-8">
             Create Your Account
           </h2>
           
           {/* Show error message if exists */}
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg relative mb-4">
               {error}
             </div>
           )}
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="name" className="font-['Graphik'] block text-sm text-gray-300 mb-2">
+              <label htmlFor="name" className="font-['SF Pro Display'] block text-sm text-gray-600 mb-2">
                 Name
               </label>
               <input
@@ -99,14 +99,14 @@ export const Signup = () => {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="font-['Graphik'] w-full bg-white/5 border border-white/10 rounded-lg py-3 px-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300"
+                className="font-['SF Pro Display'] w-full bg-white border border-gray-200 rounded-lg py-3 px-4 text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black transition-all duration-300"
                 placeholder="Enter your name"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="email" className="font-['Graphik'] block text-sm text-gray-300 mb-2">
+              <label htmlFor="email" className="font-['SF Pro Display'] block text-sm text-gray-600 mb-2">
                 Email
               </label>
               <input
@@ -115,14 +115,14 @@ export const Signup = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="font-['Graphik'] w-full bg-white/5 border border-white/10 rounded-lg py-3 px-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300"
+                className="font-['SF Pro Display'] w-full bg-white border border-gray-200 rounded-lg py-3 px-4 text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black transition-all duration-300"
                 placeholder="Enter your email"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="font-['Graphik'] block text-sm text-gray-300 mb-2">
+              <label htmlFor="password" className="font-['SF Pro Display'] block text-sm text-gray-600 mb-2">
                 Password
               </label>
               <input
@@ -131,7 +131,7 @@ export const Signup = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="font-['Graphik'] w-full bg-white/5 border border-white/10 rounded-lg py-3 px-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300"
+                className="font-['SF Pro Display'] w-full bg-white border border-gray-200 rounded-lg py-3 px-4 text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black transition-all duration-300"
                 placeholder="Enter your password"
                 required
               />
@@ -140,7 +140,7 @@ export const Signup = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-purple-400 to-blue-400 text-white font-bold py-3 px-4 rounded-lg hover:opacity-90 transition-opacity duration-300 disabled:opacity-50"
+              className="w-full bg-black text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-800 transition-all duration-300 disabled:opacity-50"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center">
@@ -156,9 +156,9 @@ export const Signup = () => {
             </button>
           </form>
 
-          <p className="font-['Graphik'] text-center text-gray-400 mt-6">
+          <p className="font-['SF Pro Display'] text-center text-gray-600 mt-6">
             Already have an account?{" "}
-            <Link to="/signin" className="text-purple-400 hover:text-purple-300 transition-colors duration-300">
+            <Link to="/signin" className="text-black hover:text-gray-600 transition-colors duration-300">
               Sign In
             </Link>
           </p>

@@ -5,14 +5,14 @@ import "aos/dist/aos.css";
 import { Navbar } from "./LandingPage";
 
 const DocSection = ({ title, content, icon }) => (
-  <div className="p-8 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 hover:border-purple-500/50 transition-all duration-300">
+  <div className="p-8 bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100">
     <div className="flex items-center mb-6">
-      <span className="text-3xl text-purple-400 mr-3">{icon}</span>
-      <h3 className="font-['Freight_Disp_Pro'] text-2xl font-bold text-white">{title}</h3>
+      <span className="text-3xl mr-3">{icon}</span>
+      <h3 className="font-['SF Pro Display'] text-2xl font-bold text-black">{title}</h3>
     </div>
     <div className="space-y-4">
       {content.map((item, index) => (
-        <div key={index} className="text-gray-300">
+        <div key={index} className="text-gray-600">
           {item}
         </div>
       ))}
@@ -21,14 +21,14 @@ const DocSection = ({ title, content, icon }) => (
 );
 
 const TechStack = ({ name, description, link }) => (
-  <div className="p-6 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 hover:border-purple-500/50 transition-all duration-300">
-    <h4 className="font-['Freight_Disp_Pro'] text-xl font-bold text-white mb-3">{name}</h4>
-    <p className="text-gray-300 mb-4">{description}</p>
+  <div className="p-6 bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100">
+    <h4 className="font-['SF Pro Display'] text-xl font-bold text-black mb-3">{name}</h4>
+    <p className="text-gray-600 mb-4">{description}</p>
     <a 
       href={link} 
       target="_blank" 
       rel="noopener noreferrer"
-      className="text-purple-400 hover:text-purple-300 transition-colors"
+      className="text-black hover:text-gray-600 transition-colors"
     >
       Learn More →
     </a>
@@ -45,26 +45,25 @@ export function DocsPage() {
   }, []);
 
   return (
-    <div className="bg-gradient-to-b from-slate-900 to-slate-800 text-white min-h-screen font-['Graphik']">
+    <div className="bg-white text-black min-h-screen font-['SF Pro Display']">
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative pt-32 pb-24 text-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-800/30 to-blue-800/30 z-0"></div>
+      <section className="relative pt-32 pb-24 text-center overflow-hidden bg-gray-50">
         <div className="relative z-10 mt-20 mb-20" data-aos="fade-up">
-          <h1 className="font-['Freight_Disp_Pro'] text-6xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+          <h1 className="font-['SF Pro Display'] text-6xl font-bold text-black">
             Documentation
           </h1>
-          <p className="mt-6 text-xl text-gray-300 max-w-3xl mx-auto">
+          <p className="mt-6 text-xl text-gray-600 max-w-3xl mx-auto">
             Explore our comprehensive documentation to understand the technology stack and security features that power WebChat.
           </p>
         </div>
       </section>
 
       {/* Getting Started Section */}
-      <section className="py-24 px-8 bg-black/20">
+      <section className="py-24 px-8 bg-white">
         <div className="max-w-7xl mx-auto">
-          <h2 className="font-['Freight_Disp_Pro'] text-4xl font-bold text-center bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-16" data-aos="fade-up">
+          <h2 className="font-['SF Pro Display'] text-4xl font-bold text-center text-black mb-16" data-aos="fade-up">
             Getting Started
           </h2>
           <div className="space-y-8">
@@ -103,9 +102,9 @@ export function DocsPage() {
       </section>
 
       {/* Technology Stack Section */}
-      <section className="py-24 px-8 bg-gradient-to-b from-slate-800 to-slate-900">
+      <section className="py-24 px-8 bg-gray-50">
         <div className="max-w-7xl mx-auto">
-          <h2 className="font-['Freight_Disp_Pro'] text-4xl font-bold text-center bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-16" data-aos="fade-up">
+          <h2 className="font-['SF Pro Display'] text-4xl font-bold text-center text-black mb-16" data-aos="fade-up">
             Technology Stack
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -144,9 +143,9 @@ export function DocsPage() {
       </section>
 
       {/* Security Features Section */}
-      <section className="py-24 px-8 bg-black/20">
+      <section className="py-24 px-8 bg-white">
         <div className="max-w-7xl mx-auto">
-          <h2 className="font-['Freight_Disp_Pro'] text-4xl font-bold text-center bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-16" data-aos="fade-up">
+          <h2 className="font-['SF Pro Display'] text-4xl font-bold text-center text-black mb-16" data-aos="fade-up">
             Security Features
           </h2>
           <div className="space-y-8">
@@ -185,9 +184,9 @@ export function DocsPage() {
       </section>
 
       {/* API Documentation Section */}
-      <section className="py-24 px-8 bg-gradient-to-b from-slate-800 to-slate-900">
+      <section className="py-24 px-8 bg-gray-50">
         <div className="max-w-7xl mx-auto">
-          <h2 className="font-['Freight_Disp_Pro'] text-4xl font-bold text-center bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-16" data-aos="fade-up">
+          <h2 className="font-['SF Pro Display'] text-4xl font-bold text-center text-black mb-16" data-aos="fade-up">
             API Documentation
           </h2>
           <div className="space-y-8">
@@ -216,18 +215,18 @@ export function DocsPage() {
       </section>
 
       {/* Support Section */}
-      <section className="py-24 px-8 bg-black/20">
+      <section className="py-24 px-8 bg-white">
         <div className="max-w-4xl mx-auto text-center" data-aos="fade-up">
-          <h2 className="font-['Freight_Disp_Pro'] text-4xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-8">
+          <h2 className="font-['SF Pro Display'] text-4xl font-bold text-black mb-8">
             Need Help?
           </h2>
-          <p className="text-gray-300 mb-8">
+          <p className="text-gray-600 mb-8">
             Our support team is always ready to help you with any questions or issues you might have.
             Join our community channels or reach out to our support team directly.
           </p>
           <Link
             to="/contact"
-            className="font-['Graphik'] bg-gradient-to-r from-purple-500 to-blue-500 text-white px-8 py-3 rounded-full text-base font-medium hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-300 inline-block"
+            className="font-['SF Pro Display'] bg-black text-white px-8 py-3 rounded-full text-base font-medium hover:bg-gray-800 transition-all duration-300 inline-block"
           >
             Contact Support
           </Link>
@@ -235,7 +234,7 @@ export function DocsPage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 bg-black/40 text-center text-gray-400 font-['Graphik']">
+      <footer className="py-8 text-center text-gray-600 font-['SF Pro Display']">
         <p>© 2024 WebChat. All Rights Reserved.</p>
       </footer>
     </div>

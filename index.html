@@ -1,11 +1,58 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="alternate icon" type="image/png" href="/favicon.png" />
+    <!-- Primary Meta Tags -->
+    <title>WebChat - The Future of Communication</title>
+    <meta name="title" content="WebChat - The Future of Communication" />
+    <meta name="description" content="Experience the next generation of secure, private messaging. Built for the future." />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Viewport -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Webchat</title>
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#ffffff" />
+    
+    <!-- Preload SF Pro Display font -->
+    <link
+      rel="preload"
+      href="/fonts/SF-Pro-Display-Medium.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    
+    <!-- Preconnect to API -->
+    <link rel="preconnect" href="http://localhost:3000" />
+
+    <style>
+      /* Minimal loading state */
+      #root:empty {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: white;
+      }
+      #root:empty::after {
+        content: '';
+        width: 50px;
+        height: 50px;
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid black;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>

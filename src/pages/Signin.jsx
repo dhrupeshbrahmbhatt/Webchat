@@ -4,7 +4,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import axios from "axios";
 import { FaUserAlt } from "react-icons/fa";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 export const Signin = () => {
   const [formData, setFormData] = useState({
@@ -82,7 +82,7 @@ export const Signin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center">
+    <div className="min-h-screen bg-white flex items-center justify-center">
       <Toaster position="top-center" reverseOrder={false}/>
       <div className="container mx-auto px-4 flex flex-col lg:flex-row items-center lg:justify-between">
         {/* Welcome Section */}
@@ -90,30 +90,30 @@ export const Signin = () => {
           className="text-center lg:text-left lg:w-1/2 mb-8 lg:mb-0 px-8"
           data-aos="fade-right"
         >
-          <h1 className="font-['Freight_Disp_Pro'] text-5xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-            Welcome Back to <span className="text-white">WebChat!</span>
+          <h1 className="font-['SF Pro Display'] text-5xl font-bold text-black">
+            Welcome Back to <span className="text-black">WebChat</span>
           </h1>
-          <p className="font-['Graphik'] text-gray-300 mt-6 text-lg leading-relaxed">
-            Continue your secure messaging journey with blockchain-powered privacy.
+          <p className="font-['SF Pro Display'] text-gray-600 mt-6 text-lg leading-relaxed">
+            Continue your secure messaging journey with next-generation privacy.
           </p>
         </div>
 
         {/* Form Section */}
         <div
-          className="bg-white/5 backdrop-blur-sm p-8 rounded-xl border border-white/10 w-full max-w-md lg:w-1/2 mx-4"
+          className="bg-gray-50 p-8 rounded-2xl shadow-sm w-full max-w-md lg:w-1/2 mx-4"
           data-aos="fade-left"
         >
           <div className="flex justify-center items-center">
-            <FaUserAlt className="text-purple-400 text-4xl mb-6" />
+            <FaUserAlt className="text-black text-4xl mb-6" />
           </div>
-          <h2 className="font-['Freight_Disp_Pro'] text-3xl font-bold text-center bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-8">
+          <h2 className="font-['SF Pro Display'] text-3xl font-bold text-center text-black mb-8">
             Sign In to Your Account
           </h2>
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label
                 htmlFor="email"
-                className="font-['Graphik'] block text-sm text-gray-300 mb-2"
+                className="font-['SF Pro Display'] block text-sm text-gray-600 mb-2"
               >
                 Email Address
               </label>
@@ -122,7 +122,7 @@ export const Signin = () => {
                 id="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                className="font-['Graphik'] w-full bg-white/5 border border-white/10 rounded-lg py-3 px-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300"
+                className="font-['SF Pro Display'] w-full bg-white border border-gray-200 rounded-lg py-3 px-4 text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black transition-all duration-300"
                 placeholder="Enter your email"
                 required
               />
@@ -130,7 +130,7 @@ export const Signin = () => {
             <div>
               <label
                 htmlFor="password"
-                className="font-['Graphik'] block text-sm text-gray-300 mb-2"
+                className="font-['SF Pro Display'] block text-sm text-gray-600 mb-2"
               >
                 Password
               </label>
@@ -139,7 +139,7 @@ export const Signin = () => {
                 id="password"
                 value={formData.password}
                 onChange={handleInputChange}
-                className="font-['Graphik'] w-full bg-white/5 border border-white/10 rounded-lg py-3 px-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300"
+                className="font-['SF Pro Display'] w-full bg-white border border-gray-200 rounded-lg py-3 px-4 text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black transition-all duration-300"
                 placeholder="Enter your password"
                 required
               />
@@ -148,7 +148,7 @@ export const Signin = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="font-['Graphik'] w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white py-3 px-6 rounded-lg hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-300 disabled:opacity-50"
+                className="font-['SF Pro Display'] w-full bg-black text-white py-3 px-6 rounded-lg hover:bg-gray-800 transition-all duration-300 disabled:opacity-50"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center">
@@ -164,14 +164,14 @@ export const Signin = () => {
               </button>
             </div>
           </form>
-          <p className="font-['Graphik'] text-center text-gray-400 mt-6">
+          <p className="font-['SF Pro Display'] text-center text-gray-600 mt-6">
             Don't have an account?{" "}
-            <a
-              href="/signup"
-              className="text-purple-400 hover:text-purple-300 transition-colors duration-300"
+            <Link
+              to="/signup"
+              className="text-black hover:text-gray-600 transition-colors duration-300"
             >
               Sign Up
-            </a>
+            </Link>
           </p>
         </div>
       </div>
