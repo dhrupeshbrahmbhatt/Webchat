@@ -218,18 +218,17 @@ export const Home = () => {
     },
   };
   return (
-    <div className="flex h-screen bg-[#F5F5F7]">
+    <div className="flex h-screen bg-white">
       <Toaster 
         position="top-center" 
-        reverseOrder={false}
-        containerStyle={{
-          top: 40,
-          zIndex: 9999,
-        }}
         toastOptions={{
-          // Default options for all toasts
-          className: 'font-["SF Pro Display"]',
-          duration: 2000,
+          style: {
+            background: 'rgba(255, 255, 255, 0.9)',
+            color: '#0f1419',
+            borderRadius: '12px',
+            border: '1px solid rgba(0, 0, 0, 0.05)',
+            backdropFilter: 'blur(8px)',
+          },
         }}
       />
       
@@ -250,20 +249,16 @@ export const Home = () => {
       )}
 
       {/* Sidebar */}
-      <aside 
-        className={`
-          fixed left-0 top-0 h-full z-40
-          transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]
-          ${isSidebarExpanded ? 'w-72' : 'w-20'}
-          flex flex-col
-          bg-white/95 backdrop-blur-xl
-          border-r border-[#E5E5E5]
-          shadow-[0_2px_20px_rgba(0,0,0,0.05)]
-        `}
-      >
+      <aside className={`
+        fixed left-0 top-0 h-full z-40
+        transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]
+        ${isSidebarExpanded ? 'w-72' : 'w-20'}
+        flex flex-col
+        bg-white border-r border-gray-100
+      `}>
         {/* Logo Section */}
-        <div className="h-16 flex items-center justify-center border-b border-[#E5E5E5]">
-          <span className="font-['SF Pro Display'] text-xl font-semibold">
+        <div className="h-16 flex items-center justify-center border-b border-gray-100">
+          <span className="text-[#1a8cd8] text-xl font-semibold">
             {isSidebarExpanded ? 'WebChat' : 'W'}
           </span>
         </div>
@@ -280,13 +275,13 @@ export const Home = () => {
                   w-full h-14 flex items-center justify-start px-6
                   transition-all duration-300 group
                   ${activeTab === item.path 
-                    ? 'text-black bg-black/5' 
-                    : 'text-gray-500 hover:bg-black/5 hover:text-black'}
+                    ? 'text-[#1a8cd8] bg-[#1a8cd8]/5' 
+                    : 'text-gray-500 hover:bg-[#1a8cd8]/5 hover:text-[#1a8cd8]'}
                 `}
               >
                 <Icon className={`w-6 h-6 transition-transform duration-300 ${isSidebarExpanded ? '' : 'group-hover:scale-110'}`} />
                 {isSidebarExpanded && (
-                  <span className="ml-4 text-sm font-['SF Pro Display'] font-medium">
+                  <span className="ml-4 text-sm font-medium">
                     {item.label}
                   </span>
                 )}
@@ -295,28 +290,17 @@ export const Home = () => {
           })}
         </div>
 
-        {/* Settings & Profile Section */}
+        {/* Settings & Profile Section - updated hover states */}
         <div className="w-full pb-8 space-y-2">
           <button
             onClick={handleSettingsClick}
             className="w-full h-14 flex items-center justify-start px-6
               transition-all duration-300 text-gray-500 
-              hover:bg-black/5 hover:text-black"
+              hover:bg-[#1a8cd8]/5 hover:text-[#1a8cd8]"
           >
             <IoSettingsOutline className="w-6 h-6" />
             {isSidebarExpanded && (
-              <span className="ml-4 text-sm font-['SF Pro Display'] font-medium">Settings</span>
-            )}
-          </button>
-          <button
-            onClick={handleProfileClick}
-            className="w-full h-14 flex items-center justify-start px-6
-              transition-all duration-300 text-gray-500 
-              hover:bg-black/5 hover:text-black"
-          >
-            <RxAvatar className="w-6 h-6" />
-            {isSidebarExpanded && (
-              <span className="ml-4 text-sm font-['SF Pro Display'] font-medium">Profile</span>
+              <span className="ml-4 text-sm font-medium">Settings</span>
             )}
           </button>
         </div>
@@ -329,16 +313,15 @@ export const Home = () => {
         initialTab={profileMenuTab}
       />
 
-      {/* Contacts List */}
+      {/* Contacts List - updated styling */}
       <div className={`
         transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]
         ${isSidebarExpanded ? 'lg:ml-72' : 'lg:ml-20'}
         w-80 h-screen overflow-hidden
-        bg-white border-r border-[#E5E5E5]
-        shadow-[1px_0_2px_rgba(0,0,0,0.05)]
+        bg-white border-r border-gray-100
       `}>
         {/* Search Header */}
-        <div className="h-16 px-6 border-b border-[#E5E5E5] flex items-center">
+        <div className="h-16 px-6 border-b border-gray-100 flex items-center">
           <div className="relative w-full">
             <input
               type="search"
@@ -346,17 +329,17 @@ export const Home = () => {
               onChange={handleSearch}
               placeholder="Search"
               className="w-full pl-10 pr-4 py-2 rounded-xl 
-                bg-[#F5F5F7] text-black placeholder-gray-400 
-                focus:outline-none focus:ring-2 focus:ring-black/5 
+                bg-gray-50 text-gray-900 placeholder-gray-400 
+                focus:outline-none focus:ring-2 focus:ring-[#1a8cd8]/20 
                 transition-all duration-300
-                font-['SF Pro Display'] text-sm"
+                text-sm"
             />
             <IoSearchOutline className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           </div>
         </div>
 
-        {/* Contacts List */}
-        <div className="overflow-y-auto h-[calc(100vh-64px)] scrollbar-none">
+        {/* Contacts List - updated hover and selected states */}
+        <div className="overflow-y-auto h-[calc(100vh-64px)] scrollbar-thin scrollbar-thumb-gray-200">
           {filteredContacts.length > 0 ? (
             filteredContacts.map((contact) => (
               <div
@@ -364,28 +347,25 @@ export const Home = () => {
                 onClick={() => handleContactClick(contact)}
                 className={`
                   flex items-center px-6 py-4 cursor-pointer
-                  transition-all duration-300 border-b border-[#F5F5F7]
+                  transition-all duration-300 border-b border-gray-50
                   ${selectedChat === contact.id 
-                    ? 'bg-[#F5F5F7]' 
-                    : 'hover:bg-[#F5F5F7]'}
+                    ? 'bg-[#1a8cd8]/5' 
+                    : 'hover:bg-gray-50'}
                 `}
               >
-                <div 
-                  className="w-10 h-10 rounded-full bg-[#E5E5E5] flex items-center justify-center
-                    transition-transform duration-300 hover:scale-105"
-                >
-                  <span className="text-black text-sm font-['SF Pro Display'] font-medium">
+                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                  <span className="text-gray-600 text-sm font-medium">
                     {contact.avatar}
                   </span>
                 </div>
                 <div className="ml-4 flex-1 min-w-0">
                   <div className="flex justify-between items-center">
-                    <h3 className="text-black font-['SF Pro Display'] font-medium text-sm">
+                    <h3 className="text-gray-900 font-medium text-sm">
                       {contact.name}
                     </h3>
-                    <span className="text-xs text-gray-500 font-['SF Pro Display']">{contact.time}</span>
+                    <span className="text-xs text-gray-500">{contact.time}</span>
                   </div>
-                  <p className="text-sm text-gray-500 truncate mt-1 font-['SF Pro Display']">
+                  <p className="text-sm text-gray-500 truncate mt-1">
                     {contact.lastMessage}
                   </p>
                 </div>
@@ -394,7 +374,7 @@ export const Home = () => {
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-gray-400 p-8">
               <IoSearchOutline className="h-12 w-12 mb-4" />
-              <p className="text-center font-['SF Pro Display'] text-sm">
+              <p className="text-center text-sm">
                 No results for "{searchQuery}"
               </p>
             </div>
@@ -402,7 +382,7 @@ export const Home = () => {
         </div>
       </div>
 
-      {/* Main Chat Area */}
+      {/* Welcome Screen - updated with SF Pro Display font */}
       <div className="flex-1 bg-white flex flex-col">
         {selectedChat ? (
           <Message 
@@ -413,18 +393,35 @@ export const Home = () => {
           <motion.div 
             initial="initial"
             animate="animate"
-            className="h-full flex items-center justify-center p-8 bg-[#F5F5F7]"
+            className="h-full flex items-center justify-center p-8"
           >
             <div className="text-center max-w-2xl">
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{
+                  duration: 1,
+                  delay: 0.2,
+                  ease: [0, 0.71, 0.2, 1.01]
+                }}
+                className="mb-12"
+              >
+                <div className="w-40 h-40 mx-auto mb-8 rounded-full bg-[#1a8cd8]/5 flex items-center justify-center">
+                  <span className="font-['SF_Pro_Display'] text-[#1a8cd8] text-8xl font-bold tracking-tight">
+                    W
+                  </span>
+                </div>
+              </motion.div>
+              
               <motion.h2 
                 variants={contentVariants}
-                className="text-5xl font-['SF Pro Display'] font-bold text-black mb-6"
+                className="font-['SF_Pro_Display'] text-4xl font-medium text-gray-900 mb-4"
               >
                 Welcome to WebChat
               </motion.h2>
               <motion.p 
                 variants={textVariants}
-                className="text-xl text-gray-500 font-['SF Pro Display'] font-light"
+                className="font-['SF_Pro_Display'] text-lg text-gray-500"
               >
                 Select a conversation to start messaging
               </motion.p>

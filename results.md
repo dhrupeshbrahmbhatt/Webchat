@@ -127,3 +127,58 @@
 
 -Link: https://explorer.aleph.im/address/ETH/0x241A051044332F60640299Ade1217dF36384840D/message/POST/ce28cf13d23810b471c0023d3882662bdf4fdedf6e736516bea00d51b896dc10
 -Link : https://explorer.aleph.im/address/ETH/0x241A051044332F60640299Ade1217dF36384840D/message/POST/ce28cf13d23810b471c0023d3882662bdf4fdedf6e736516bea00d51b896dc10
+
+<!-- Quantum Resistant Encryption Demo -->
+================================================================================
+🔬 Quantum-Resistant Encryption System Demonstration
+================================================================================ 
+
+🚀 Starting Quantum-Resistant Encryption Demo
+
+📑 Initializing Quantum-Resistant Encryption System...
+✅ Encryption system initialized
+
+🔑 Generating key pairs for Alice and Bob...
+✅ Key pairs generated
+
+📝 Alice preparing message for Bob...
+📤 Original message: Hello Bob! This is a secret message that needs quantum-resistant protection.
+
+🔒 Alice encrypting message with Bob's public key...
+📦 Encrypted Package Details:
+   - Encrypted Message: 9GDH8ryNeNaB0Rjt8MTw4FZyJQUfrjmDvTOKZz0QvSrFC3SafT4w/fwg14G5BzDNIe6jTwpenyzRAykG9Oa0N+/BxYpQB8Y0Vdiojg==
+   - Encrypted Symmetric Key: wVEciKJZmkibYXshLqTHWxp55Qc4qkiUKjgbm4eLL5Xxoi9gw7FesStbWiYdbgyn+QoJAEAkzp4xCghgWiJXHUzIOC3SpVqEyvBKyXrxfHQl88awZB4wk9S6y2ZuH+0ZE21rjpclT9QkYJuHBPUbv/mehjxLC849zzc+vca8TC5xzQAnFS3hVa2Ta2LD2ziL+vJBdD+JRUEgIrV8dN25aLnpkpGxfk3m6lMigKsm90wu3mHyNP8uzSIYEvS+StfpQCEnhcll+qoYL2wcKnrGE4mbPMiRDMnAJl9q2kzBkTdyOyVXB680b57hEJQfSkF6K66zMXiVXOBCglIyRKpcjed92GDLjKfTrvsGqVZo24N/dNYJ2Y98OvMARqhSbuAM/skJ6dz9B7pL11P2zKm0YXuKG+N7tWIwS2FafXczwwXbFJZi65O/5QLISf14P48TTkuNyRHHYAY//8PzVOd3gpVzvI67zb58HcCaKakGnVrEhy5QEDjPv9Kkbu2G8fIIW/Adv1NG7mADdBAdbhEzGh0mZwCPp/z20DmmlPUUPOcE+xzL0iHgee2FHM67YlUZ4x8rCxB1FRDdcvWB57NkUSMo1jmKBn652MHEA0pZGDZ1lYP7mn9G/k/jO+QXSDahgtdChkNSMEjlchsfYy2Q9OWJnPWPxsUqeVwT/kZpCn8Y2MzmqkPoJONYGTfecEDT+4IAgyBq+D+Yp5trJ2BSRhDUxmPhzoalPoiCyey+0z5nOBWHpEUs4sLulJ01d3b/gqcmpvaaQ0MerlepAtb32TUEejCxDb8XBpnaU2g/ffpe3UQ9t0tK2wJk6E3AFoNlDq9sXZ2h/n108br5lu9BjJi8zCGWX4HAWulL3wEIuwR27pQCJgWzdMI119sm6dGCpJar+FH3M3L+DhhvzlXWbjK8KyhaIBLKPpycGiCSQ9bPc7zg4UK3Z6ho4IsHINspUQlp72pl5xI/Nbw7nfPsYQfHlR9FCeAZOVwBvNDYYZR2HMMvEfBTGbE3poZoe+oL5MEDeeIOZN+eRrokcLN7rRgG0N/XaTbrmB8vEgHKeyCW/hc/YGwvInYuVXsplzPwAMo293+uwEWfsD0QInNhwDvCkGEimunpfEsxrpNdgTWvsZyu3FxzkwCR+xNgawx/FCkfBkp+kMr4B0JF8hGOcHnYGuU7BjWIQeAkmN0RHCd564A1OgrlmoqUcB1bS6g92XeShPAejS5Mytr9uyTp3N4jeGxxMY6MdgabSH5J0A/oIeLYw5rKc1DLLbS7tHRN/6bf8ut6JNR6t2m+RHwr0cuFdbGX2h2V/siuOkokwb6HkdFS4pHsgUAoTSHEJkF9if3Xpzzoq8rHXdZalj2pwA==
+   - Nonce: G9YXNdbwOMAqJFKW
+   - Auth Tag: qTu8cWsroWEVLdzvphgnew==
+
+✍️  Alice signing the message...
+9t0tK2wJk6E3AFoNlDq9sXZ2h/n108br5lu9BjJi8zCGWX4HAWulL3wEIuwR27pQCJgWzdMI119sm6dGCpJar+FH3M3L+DhhvzlXWbjK8KyhaIBLKPpycGiCSQ9bPc7zg4UK3Z6ho4IsHINspUQlp72pl5xI/Nbw7nfPsYQfHlR9FCeAZOVwBvNDYYZR2HMMvEfBTGbE3poZoe+oL5MEDeeIOZN+eRrokcLN7rRgG0N/XaTbrmB8vEgHKeyCW/hc/YGwvInYuVXsplzPwAMo293+uwEWfsD0QInNhwDvCkGEimunpfEsxrpNdgTWvsZyu3FxzkwCR+xNgawx/FCkfBkp+kMr4B0JF8hGOcHnYGuU7BjWIQeAkmN0RHCd564A1OgrlmoqUcB1bS6g92XeShPAejS5Mytr9uyTp3N4jeGxxMY6MdgabSH5J0A/oIeLYw5rKc1DLLbS7tHRN/6bf8ut6JNR6t2m+RHwr0cuFdbGX2h2V/siuOkokwb6HkdFS4pHsgUAoTSHEJkF9if3Xpzzoq8rHXdZalj2pwA==
+   - Nonce: G9YXNdbwOMAqJFKW
+   - Auth Tag: qTu8cWsroWEVLdzvphgnew==
+
+✍️  Alice signing the message...
+   - Auth Tag: qTu8cWsroWEVLdzvphgnew==
+
+✍️  Alice signing the message...
+✍️  Alice signing the message...
+✅ Message signed
+
+
+🔓 Bob decrypting the message...
+🔓 Bob decrypting the message...
+📨 Decrypted message: Hello Bob! This is a secret message that needs quantum-resistant protection.
+
+🔍 Bob verifying Alice's signature...
+🔍 Bob verifying Alice's signature...
+✅ Signature verification: Valid
+
+🔎 Message Integrity Check:
+🔎 Message Integrity Check:
+Original message matches decrypted message: ✅ Yes
+
+🧪 Testing signature verification with tampered message...
+Tampered message signature verification: ✅ Correctly Invalid
+
+================================================================================
+🎉 Demo completed successfully!
+================================================================================

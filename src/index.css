@@ -2,24 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+
 @font-face {
-  font-family: 'Freight Disp Pro';
-  src: url('./fonts/FreightDispProSemibold-Regular.ttf') format('truetype'),
-       url('./fonts/FreightDispProSemibold-Regular.woff') format('woff'),
-       url('./fonts/FreightDispProSemibold-Regular.woff2') format('woff2');
-  font-weight: 400;
+  font-family: 'SF Pro Display';
+  src: url('/fonts/SF-Pro-Display-Regular.otf') format('opentype');
+  font-weight: normal;
   font-style: normal;
-  font-display: swap;
 }
 
 @font-face {
-  font-family: 'Graphik';
-  src: url('./fonts/Graphik-Regular.ttf') format('truetype'),
-       url('./fonts/Graphik-Regular.woff') format('woff'),
-       url('./fonts/Graphik-Regular.woff2') format('woff2');
-  font-weight: 400;
+  font-family: 'SF Pro Display';
+  src: url('/fonts/SF-Pro-Display-Bold.otf') format('opentype');
+  font-weight: bold;
   font-style: normal;
-  font-display: swap;
 }
 
 @layer utilities {

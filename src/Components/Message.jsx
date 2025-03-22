@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import MessageBox from "../Components/MessageTemplate";
 import CryptoJS from 'crypto-js';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { IoEllipsisHorizontal, IoCall, IoVideocam, IoClose, IoSearchOutline, IoSettingsOutline } from 'react-icons/io5';
 import { toast } from 'react-hot-toast';
 import { RxAvatar } from 'react-icons/rx';
 import { Toaster } from 'react-hot-toast';
+import ChatCalendar from './ChatCalendar';
 
 export const encryptMessage = (message, symmetricKey) => {
   try {
@@ -60,9 +61,10 @@ export const decryptMessage = (encryptedMessage, symmetricKey) => {
   }
 };
 
-const DateSeparator = ({ date }) => {
+const DateSeparator = ({ date, chatDates, onDateSelect }) => {
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+
   const formatDate = (timestamp) => {
-    // Convert Unix timestamp to milliseconds
     const messageDate = new Date(timestamp * 1000);
     const today = new Date();
     const yesterday = new Date(today);
@@ -82,13 +84,32 @@ const DateSeparator = ({ date }) => {
   };
 
   return (
-    <div className="flex items-center justify-center my-4">
-      <div className="px-4 py-1 rounded-full bg-white/5 backdrop-blur-sm border border-white/10">
-        <span className="text-xs text-gray-400 font-['Graphik']">
-          {formatDate(date)}
-        </span>
+    <>
+      <div 
+        className="flex items-center justify-center my-4 cursor-pointer"
+        onClick={() => setIsCalendarOpen(true)}
+      >
+        <div className="px-4 py-1 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-colors">
+          <span className="text-xs text-gray-400 font-['Graphik']">
+            {formatDate(date)}
+          </span>
+        </div>
       </div>
-    </div>
+
+      <AnimatePresence>
+        {isCalendarOpen && (
+          <ChatCalendar
+            chatDates={chatDates}
+            onDateSelect={(selectedDate) => {
+              onDateSelect(selectedDate);
+              setIsCalendarOpen(false);
+            }}
+            onClose={() => setIsCalendarOpen(false)}
+            selectedDate={new Date(date * 1000)}
+          />
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 
@@ -116,6 +137,51 @@ const highlightText = (text, searchTerm) => {
     }
     return part;
   });
+};
+
+const ChatMessage = ({ isMyMessage, Message, Address, isEncrypted, timestamp }) => {
+  const formattedTime = new Date(timestamp * 1000).toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true
+  });
+
+  return (
+    <div className={`flex ${isMyMessage ? 'justify-end' : 'justify-start'} mb-3`}>
+      {!isMyMessage && (
+        <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mr-2 mt-1">
+          <RxAvatar className="w-5 h-5 text-gray-500" />
+        </div>
+      )}
+      <div className="flex flex-col">
+        <div className={`
+          group inline-flex px-4 py-2.5 rounded-2xl
+          ${isMyMessage ? 
+            'bg-[#1a8cd8] text-white' : 
+            'bg-[#f7f7f7] text-[#0f1419]'}
+        `}>
+          {isEncrypted ? (
+            <div className="font-mono text-sm opacity-50 break-all">
+              {Message}
+            </div>
+          ) : (
+            <div className="text-[15px] leading-[1.4] break-words whitespace-pre-wrap">
+              {Message}
+            </div>
+          )}
+        </div>
+        <div className={`
+          flex items-center gap-2 mt-1
+          ${isMyMessage ? 'justify-end' : 'justify-start'}
+        `}>
+          <span className="text-xs text-[#536471]">{formattedTime}</span>
+          {isMyMessage && (
+            <span className="text-xs text-[#536471]">•</span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export const Message = ({ selectedContact, onClose }) => {
@@ -411,18 +477,61 @@ export const Message = ({ selectedContact, onClose }) => {
     setCurrentSearchIndex(-1);
   };
 
-  // Update the message rendering to use react-highlight-words
+  const scrollToDate = (date) => {
+    // Convert selected date to start and end timestamps for that day
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    const startTimestamp = Math.floor(startOfDay.getTime() / 1000);
+    
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+    const endTimestamp = Math.floor(endOfDay.getTime() / 1000);
+
+    // Find the first message from that day
+    const messageElement = post.find(message => 
+      message.time >= startTimestamp && message.time <= endTimestamp
+    );
+
+    if (messageElement) {
+      const element = document.querySelector(`[data-timestamp="${messageElement.time}"]`);
+      if (element) {
+        // Scroll the element into view with a smooth animation
+        element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        });
+
+        // Add a temporary highlight effect
+        element.classList.add('bg-black/5');
+        setTimeout(() => {
+          element.classList.remove('bg-black/5');
+        }, 2000);
+      }
+    } else {
+      toast.error('No messages found for this date', {
+        style: {
+          background: 'rgba(255, 255, 255, 0.9)',
+          color: '#000',
+          borderRadius: '12px',
+        },
+      });
+    }
+  };
+
+  // Update the message rendering to include data-timestamp
   const renderMessage = (item, index) => {
     const isMyMessage = item.sender === userAddress;
     
     return (
       <motion.div
         key={`msg-${item.time}-${index}`}
+        data-timestamp={item.time}
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
+        className="transition-colors duration-300"
       >
-        <MessageBox
+        <ChatMessage
           isMyMessage={isMyMessage}
           Message={highlightText(item.content.body, searchTerm)}
           Address={item.sender}
@@ -433,8 +542,10 @@ export const Message = ({ selectedContact, onClose }) => {
     );
   };
 
-  // Performance optimization: Memoize messages
+  // Update memoizedMessages to ensure data-timestamp is properly set
   const memoizedMessages = useMemo(() => {
+    const chatDates = post.map(item => item.time);
+    
     return post
       .filter((item) => item.content?.body?.trim() !== "")
       .reduce((acc, item, index, array) => {
@@ -452,6 +563,8 @@ export const Message = ({ selectedContact, onClose }) => {
             <DateSeparator
               key={`date-${item.time}-${index}`}
               date={item.time}
+              chatDates={chatDates}
+              onDateSelect={scrollToDate}
             />
           );
         }
@@ -501,151 +614,81 @@ export const Message = ({ selectedContact, onClose }) => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-[#F5F5F7]">
-      <Toaster 
-        position="top-center" 
-        reverseOrder={false}
-        containerStyle={{
-          top: 40,
-          zIndex: 9999,
-        }}
-        toastOptions={{
-          // Default options for all toasts
-          className: 'font-["SF Pro Display"]',
-          duration: 2000,
-        }}
-      />
-      <header className="h-16 px-6 bg-white/95 backdrop-blur-xl border-b border-[#E5E5E5] 
-        flex items-center justify-between shadow-sm">
+    <div className="h-screen flex flex-col bg-white">
+      <header className="h-16 px-6 bg-white sticky top-0 z-10 
+        border-b border-gray-100 flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <div className="w-10 h-10 rounded-full bg-[#E5E5E5] flex items-center justify-center
-            transition-transform duration-300 hover:scale-105">
-            <span className="font-['SF Pro Display'] text-black text-sm font-medium">
+          <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+            <span className="text-sm text-gray-600 font-medium">
               {selectedContact?.avatar || 'A'}
             </span>
           </div>
-          <h1 className="font-['SF Pro Display'] text-xl font-semibold text-black">
+          <h1 className="text-[#0f1419] text-lg font-semibold">
             {selectedContact?.name || 'Group Chat'}
           </h1>
         </div>
-        <div className="flex items-center space-x-6">
+        <div className="flex items-center space-x-5">
           <button onClick={toggleSearch} 
-            className="text-gray-500 hover:text-black transition-colors duration-300">
-            <IoSearchOutline size={22} />
+            className="text-gray-500 hover:text-gray-700 transition-colors">
+            <IoSearchOutline size={20} />
           </button>
-          <button className="text-gray-500 hover:text-black transition-colors duration-300">
-            <IoCall size={22} />
-          </button>
-          <button className="text-gray-500 hover:text-black transition-colors duration-300">
-            <IoVideocam size={22} />
+          <button className="text-gray-500 hover:text-gray-700 transition-colors">
+            <IoSettingsOutline size={20} />
           </button>
           <button onClick={handleClose} 
-            className="text-gray-500 hover:text-black transition-colors duration-300">
-            <IoClose size={22} />
+            className="text-gray-500 hover:text-gray-700 transition-colors">
+            <IoClose size={20} />
           </button>
         </div>
       </header>
 
       {isSearchActive && (
-        <div className="bg-white border-b border-[#E5E5E5] px-6 py-2">
+        <div className="border-b border-gray-100 px-6 py-2 bg-white">
           <div className="relative flex items-center">
-            <IoSearchOutline className="absolute left-3 text-gray-400" size={20} />
+            <IoSearchOutline className="absolute left-3 text-gray-400" size={18} />
             <input
               type="text"
               value={searchTerm}
               onChange={handleSearch}
               placeholder="Search in conversation"
-              className="w-full pl-10 pr-32 py-2 rounded-xl bg-[#F5F5F7] 
-                text-black placeholder-gray-400 
-                focus:outline-none focus:ring-2 focus:ring-black/5 
-                transition-all duration-300
-                font-['SF Pro Display'] text-sm"
+              className="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-50 
+                text-gray-900 placeholder-gray-400 text-sm
+                focus:outline-none focus:ring-2 focus:ring-[#1a8cd8]/20"
               autoFocus
             />
-            <div className="absolute right-2 flex items-center space-x-2 bg-black/20 rounded-md px-2 py-1">
-              {searchTerm && searchMatches.length > 0 && (
-                <>
-                  <span className="text-sm text-gray-400 px-2 border-r border-gray-600">
-                    {`${currentSearchIndex + 1}/${searchMatches.length}`}
-                  </span>
-                </>
-              )}
-              <button
-                onClick={() => handleSearchNavigation('up')}
-                className="p-1 text-gray-400 hover:text-white disabled:opacity-50 hover:bg-white/5 rounded"
-                disabled={!searchTerm || searchMatches.length === 0}
-                title="Previous match"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                </svg>
-              </button>
-              <button
-                onClick={() => handleSearchNavigation('down')}
-                className="p-1 text-gray-400 hover:text-white disabled:opacity-50 hover:bg-white/5 rounded"
-                disabled={!searchTerm || searchMatches.length === 0}
-                title="Next match"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              <div className="h-4 w-[1px] bg-gray-600" />
-              <button
-                onClick={toggleSearch}
-                className="p-1 text-gray-400 hover:text-white hover:bg-white/5 rounded transition-colors duration-300"
-                title="Close search (Esc)"
-              >
-                <IoClose size={16} />
-              </button>
-            </div>
           </div>
         </div>
       )}
 
       <div
         ref={chatContainerRef}
-        className="flex-grow overflow-y-auto scrollbar-thin scrollbar-thumb-black/20 
-          scrollbar-track-transparent hover:scrollbar-thumb-black/30 
-          transition-colors duration-300 bg-white"
+        className="flex-grow overflow-y-auto px-6 py-4
+          scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent"
         style={{ 
-          height: 'calc(100vh - 120px)',
+          height: 'calc(100vh - 144px)',
           scrollBehavior: 'smooth',
           display: 'flex',
           flexDirection: 'column-reverse'
         }}
       >
-        {loading && (
+        {loading ? (
           <div className="text-center py-4 text-gray-400">Loading...</div>
-        )}
-        {post.length > 0 && (
-          <div className="px-6 py-4 flex flex-col">
+        ) : (
+          <div className="space-y-1">
             {memoizedMessages}
           </div>
         )}
-        {isTyping && (
-          <motion.div
-            className="text-gray-400 text-sm px-6 py-2"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
-          >
-            Typing...
-          </motion.div>
-        )}
       </div>
 
-      <footer className="bg-white border-t border-[#E5E5E5] px-6 py-4">
-        <div className="flex items-center gap-4">
+      <footer className="bg-white border-t border-gray-100 px-6 py-4 sticky bottom-0">
+        <div className="flex items-center gap-3">
           <textarea
             placeholder="Message"
-            className="flex-grow px-4 py-3 rounded-xl bg-[#F5F5F7] 
-              text-black placeholder-gray-400 
-              focus:outline-none focus:ring-2 focus:ring-black/5 
-              transition-all duration-300 resize-none
-              font-['SF Pro Display'] text-sm
-              scrollbar-thin scrollbar-thumb-black/20 
-              scrollbar-track-transparent"
+            className="flex-grow px-4 py-3 rounded-xl bg-gray-50
+              text-gray-900 placeholder-gray-400
+              focus:outline-none focus:ring-2 focus:ring-[#1a8cd8]/20
+              transition-all duration-200 resize-none text-[15px]
+              scrollbar-thin scrollbar-thumb-gray-200"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={handleKeyPress}
@@ -657,14 +700,30 @@ export const Message = ({ selectedContact, onClose }) => {
           />
           <button
             onClick={sendMessage}
-            className="bg-black text-white px-6 py-3 rounded-xl 
-              hover:bg-black/90 transition-all duration-300 
-              font-['SF Pro Display'] text-sm font-medium"
+            disabled={!newMessage.trim()}
+            className="bg-[#1a8cd8] text-white px-5 py-2.5 rounded-full
+              hover:bg-[#1a8cd8]/90 transition-colors duration-200
+              text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Send
           </button>
         </div>
       </footer>
+
+      <Toaster 
+        position="top-center"
+        toastOptions={{
+          className: 'font-sans',
+          duration: 2000,
+          style: {
+            background: 'rgba(255, 255, 255, 0.9)',
+            color: '#0f1419',
+            borderRadius: '12px',
+            border: '1px solid rgba(0, 0, 0, 0.05)',
+            backdropFilter: 'blur(8px)',
+          },
+        }}
+      />
     </div>
   );
 };

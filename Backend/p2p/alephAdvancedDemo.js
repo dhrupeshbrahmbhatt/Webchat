@@ -1,5 +1,6 @@
 const aleph = require('aleph-js')
 const { randomBytes } = require('crypto')
+const QuantumResistantEncryption = require('../utils/quantumEncryption')
 
 class AlephAdvancedChat {
     constructor() {
@@ -10,17 +11,73 @@ class AlephAdvancedChat {
         this.batchTimeout = 5000 // 5 seconds
         this.pendingMessages = new Map() // Channel -> Pending messages
         this.account = null
+        this.messageExpiryDays = 7
+        this.cleanupInterval = 1000 * 60 * 60 * 24 // Run cleanup once per day
+        this.qre = new QuantumResistantEncryption()
+        this.keyPair = null
+        this.startCleanupScheduler()
     }
 
     async init() {
         try {
             this.account = await this.aleph.ethereum.new_account()
-            console.log('✨ Initialized Advanced Aleph Chat')
+            // Generate quantum-resistant keys
+            this.keyPair = this.qre.generateKeyPair()
+            console.log('✨ Initialized Advanced Aleph Chat with quantum-resistant encryption')
             console.log('📱 User ID:', this.nodeId)
             return true
         } catch (error) {
             console.error('❌ Init failed:', error)
             return false
+        }
+    }
+
+    startCleanupScheduler() {
+        setInterval(() => this.cleanupExpiredMessages(), this.cleanupInterval)
+    }
+
+    async cleanupExpiredMessages() {
+        try {
+            console.log('🧹 Starting message cleanup...')
+            const channels = await this.getActiveChannels()
+            
+            for (const channelId of channels) {
+                const messages = await this.getChannelMessages(channelId)
+                const now = Date.now()
+                const expiryTime = this.messageExpiryDays * 24 * 60 * 60 * 1000 // 7 days in milliseconds
+                
+                // Filter out expired messages
+                const activeMessages = messages.filter(message => {
+                    const messageAge = now - message.timestamp
+                    return messageAge < expiryTime
+                })
+
+                // If messages were removed, update the channel
+                if (activeMessages.length < messages.length) {
+                    console.log(`📤 Removing ${messages.length - activeMessages.length} expired messages from channel ${channelId}`)
+                    await this.updateChannel(channelId, activeMessages)
+                }
+            }
+            console.log('✨ Cleanup completed')
+        } catch (error) {
+            console.error('❌ Cleanup failed:', error)
+        }
+    }
+
+    async getActiveChannels() {
+        try {
+            // Get all channels where this user has participated
+            const response = await this.aleph.posts.get_posts('chat', {
+                api_server: "https://api2.aleph.im",
+                addresses: [this.account.address]
+            })
+            
+            // Extract unique channel IDs from the posts
+            const channels = new Set(response.posts.map(post => post.ref))
+            return Array.from(channels)
+        } catch (error) {
+            console.error('❌ Failed to get active channels:', error)
+            return []
         }
     }
 
@@ -31,6 +88,7 @@ class AlephAdvancedChat {
             type,
             sender: this.nodeId,
             timestamp: Date.now(),
+            expiryDate: Date.now() + (this.messageExpiryDays * 24 * 60 * 60 * 1000), // Add expiry date
             replyTo,
             threadId,
             reactions: {},
@@ -74,6 +132,18 @@ class AlephAdvancedChat {
     async sendMessage(channelId, content, type = 'text', replyTo = null, threadId = null) {
         const message = this.createMessage(content, type, replyTo, threadId)
         
+        // Encrypt message with quantum-resistant encryption
+        const encryptedPackage = await this.qre.encryptMessage(
+            JSON.stringify(message),
+            this.keyPair.encryptionKeys.publicKey
+        )
+        
+        // Sign the encrypted message
+        const signature = await this.qre.signMessage(
+            JSON.stringify(message),
+            this.keyPair.signingKeys.privateKey
+        )
+
         let pending = this.pendingMessages.get(channelId) || []
         pending.push(message)
         this.pendingMessages.set(channelId, pending)
@@ -149,7 +219,14 @@ class AlephAdvancedChat {
             })
 
             const post = response.posts[0]
-            return post ? post.content.messages : []
+            if (!post) return []
+
+            // Filter out expired messages when retrieving
+            const now = Date.now()
+            return post.content.messages.filter(message => {
+                const messageAge = now - message.timestamp
+                return messageAge < (this.messageExpiryDays * 24 * 60 * 60 * 1000)
+            })
         } catch (error) {
             console.error(`❌ Failed to get messages from ${channelId}:`, error)
             return []
@@ -171,6 +248,20 @@ class AlephAdvancedChat {
                 channel: "TEST"
             }
         )
+    }
+
+    // Add method to check message expiry
+    isMessageExpired(message) {
+        const now = Date.now()
+        const messageAge = now - message.timestamp
+        return messageAge >= (this.messageExpiryDays * 24 * 60 * 60 * 1000)
+    }
+
+    // Add method to get time until message expires
+    getTimeUntilExpiry(message) {
+        const now = Date.now()
+        const expiryTime = message.timestamp + (this.messageExpiryDays * 24 * 60 * 60 * 1000)
+        return Math.max(0, expiryTime - now)
     }
 }
 
@@ -275,7 +366,33 @@ async function runAdvancedDemo() {
         console.log('---')
     })
 
+    // Add message expiry test
+    await testMessageExpiry(user1)
+
     console.log('\n✅ Advanced demo completed successfully!')
+}
+
+// Add to the demo to test message expiry
+async function testMessageExpiry(chat) {
+    console.log('\n⏰ Testing message expiry...')
+    const channelId = 'expiry-test-' + Date.now()
+    
+    // Create a message with modified timestamp to simulate an old message
+    const oldMessage = chat.createMessage('This is an old message')
+    oldMessage.timestamp = Date.now() - (8 * 24 * 60 * 60 * 1000) // 8 days old
+    
+    const newMessage = chat.createMessage('This is a new message')
+    
+    // Manually add messages to channel
+    await chat.updateChannel(channelId, [oldMessage, newMessage])
+    
+    // Force cleanup
+    await chat.cleanupExpiredMessages()
+    
+    // Check remaining messages
+    const remainingMessages = await chat.getChannelMessages(channelId)
+    console.log('Messages after cleanup:', remainingMessages.length)
+    console.log('Remaining messages:', remainingMessages.map(m => m.content))
 }
 
 // Run the demo

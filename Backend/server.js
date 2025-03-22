@@ -30,11 +30,42 @@ app.use(cors({
   credentials: true
 }));
 
-// Connect to MongoDB
-mongoose.connect("mongodb+srv://dhrupesh:DK_dk@lab.pk1pccj.mongodb.net/labData")
-  .then(() => console.log("Server connected to DB..."))
-  .catch(err => console.log("Error in MongoDB connection: " + err));
-console.log("DB connected succesfully");
+// Update MongoDB connection with options and proper error handling
+mongoose.connect("mongodb+srv://dhrupesh:DK_dk@lab.pk1pccj.mongodb.net/labData", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+    socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
+})
+.then(() => {
+    console.log("✅ Successfully connected to MongoDB.");
+})
+.catch(err => {
+    console.error("❌ MongoDB connection error:", err);
+    process.exit(1); // Exit process with failure
+});
+
+// Add MongoDB connection error handler
+mongoose.connection.on('error', err => {
+    console.error('MongoDB connection error:', err);
+});
+
+// Add MongoDB disconnection handler
+mongoose.connection.on('disconnected', () => {
+    console.log('MongoDB disconnected');
+});
+
+// Handle process termination
+process.on('SIGINT', async () => {
+    try {
+        await mongoose.connection.close();
+        console.log('MongoDB connection closed through app termination');
+        process.exit(0);
+    } catch (err) {
+        console.error('Error during MongoDB connection closure:', err);
+        process.exit(1);
+    }
+});
 
 // Add this helper function for key generation
 function generateEncryptionKey() {
